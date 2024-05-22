@@ -9,10 +9,20 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     use HttpResponsesTrait;
-    public function show(string $username){
+    public function show(string $username)
+    {
         $user = User::where('username', $username)->first();
-        if(!$user){
+        if (!$user) {
             return $this->error(null, 'User not found', 400);
+        }
+        return $this->success($user);
+    }
+
+    public function validate_link_token(string $link_token)
+    {
+        $user = User::where('link_token', $link_token)->first();
+        if (!$user) {
+            return $this->error(null, 'User not found', 404);
         }
         return $this->success($user);
     }
