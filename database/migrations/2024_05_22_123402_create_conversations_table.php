@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('initiator_id')->constrained('users');
             $table->foreignId('recipient_id')->constrained('users');
-            $table->string('initiator_username');
+            $table->string('initiator_username')->unique();
             $table->timestamps();
         });
     }
