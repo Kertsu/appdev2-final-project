@@ -25,6 +25,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
     Route::controller(MessageController::class)->group(function () {
-        Route::post('/users/{username}/send', 'initiate_conversation');
+        Route::post('/users/{link_token}/send', 'initiate_conversation');
+        Route::post('/conversations/{conversation}/send', 'send_message')->missing(function( ) {
+            return response()->json([
+               'error' => 'Conversation not found'
+            ], 404);
+        });
+        
+        // ToDo
+        Route::post('/users/{link_token}/validate', 'validate_link_token');
     });
 });

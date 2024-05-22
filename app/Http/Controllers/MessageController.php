@@ -15,22 +15,42 @@ class MessageController extends Controller
     use HttpResponsesTrait;
     public function send_message(Conversation $conversation, MessageRequest $request)
     {
+        $validatedData = $request->validated();
+
+        if (!$conversation && ($conversation->initiator_id !== Auth::user()->id || $conversation->recipient_id !== Auth::user()->id)) {
+            return $this->error(null, 'Conversation not found', 404);
+        }
+
+        $message = Message::create([
+            'sender_id' => Auth::user()->id,
+            'conversation_id' => $conversation->id,
+            'content' => $validatedData['content']
+        ]);
+
+        return $this->success(
+            [
+                'message' => $message,
+                'conversation' => $conversation,
+            ],
+            'Message sent'
+        );
     }
 
-    public function initiate_conversation(string $username, MessageRequest $request)
+    public function initiate_conversation(string $link_token, MessageRequest $request)
     {
         $validatedData = $request->validated();
 
-        $recipient = User::where('username', $username)->first();
+        $recipient = User::where('link_token', $link_token)->first();
 
         $existingConversation = Conversation::where([
             ['initiator_id', '=', Auth::user()->id],
             ['recipient_id', '=', $recipient->id]
         ])->first();
 
-
         if ($existingConversation) {
-            return $this->error(null, 'Conversation already exists', 400);
+            return $this->success([
+                'conversation_id' => $existingConversation->id
+            ], 'Conversation already exists');
         }
 
         if (!$recipient) {
