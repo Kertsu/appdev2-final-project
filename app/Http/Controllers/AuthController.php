@@ -18,7 +18,7 @@ class AuthController extends Controller
     {
         $validatedData = $request->validated();
 
-        if (!Auth::attempt($request->only(['email', 'password']))){
+        if (!Auth::attempt($request->only(['email', 'password']))) {
             return $this->error(null, 'Invalid credentials', 401);
         }
 
@@ -28,19 +28,20 @@ class AuthController extends Controller
             'user' => $user,
             'token' => $user->createToken('authToken')->plainTextToken,
         ]);
-        
     }
 
     public function register(StoreUserRequest $request)
     {
         $validatedData = $request->validated();
 
+        $link_token = generate_link_token();
         $verification_code = generate_otp();
         $user = User::create([
             'email' => $validatedData['email'],
             'username' => $validatedData['username'],
             'password' => Hash::make($validatedData['password']),
-            'verification_code' => $verification_code
+            'verification_code' => $verification_code,
+            'link_token' =>  $link_token  . '-' . $validatedData['username']
         ]);
 
         return $this->success([
