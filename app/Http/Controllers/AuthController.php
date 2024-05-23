@@ -39,8 +39,10 @@ class AuthController extends Controller
             'email' => $validatedData['email'],
             'username' => $validatedData['username'],
             'password' => Hash::make($validatedData['password']),
-            'verification_code' => $verification_code,
+            'verification_code' => Hash::make($verification_code),
         ]);
+
+        // sendOTP($user->email, $verification_code);
 
         return $this->success([
             'user' => $user,

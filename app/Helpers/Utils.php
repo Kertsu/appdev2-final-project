@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Str;
-
+use App\Mail\SendMail;
+use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 
 function generate_otp(){
@@ -13,4 +13,15 @@ function generate_otp(){
     }
 
     return $verification_code;
+}
+
+function sendOTP(string $email, string $verification_code){
+    $details = [
+        'title' => 'Mail from My Laravel App',
+        'body' => 'This is a test email.'
+    ];
+
+    Mail::to($email)->send(new SendMail($details));
+
+    return 'Email sent successfully';
 }
