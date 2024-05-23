@@ -13,7 +13,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::controller(AuthController::class)->group(function () {
     Route::post('/login', 'login');
     Route::post('/register', 'register');
-    Route::post('/verification_code/resend', 'resend_verification_code');
+    Route::post('/otp/resend', 'resend_verification_code');
+    Route::post('/otp/verify', 'verify_email');
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function () {

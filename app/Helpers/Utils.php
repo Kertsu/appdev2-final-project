@@ -18,7 +18,7 @@ function generate_otp(){
 function sendOTP(string $email, string $verification_code){
     $details = [
         'title' => 'Welcome to Our Service',
-        'body' => 'This is a welcome email.',
+        'body' => $verification_code,
         'url' => 'https://example.com'
     ];
 

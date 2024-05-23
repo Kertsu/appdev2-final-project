@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\VerifyEmailRequest;
 use App\Models\User;
 use App\Traits\HttpResponsesTrait;
 use Carbon\Carbon;
@@ -45,7 +46,7 @@ class AuthController extends Controller
             'verification_code_expires_at' => Carbon::now()->addMinutes(10)
         ]);
 
-        // sendOTP($user->email, $verification_code);
+        sendOTP($user->email, $verification_code);
 
         return $this->success([
             'user' => $user,
@@ -82,6 +83,31 @@ class AuthController extends Controller
 
         return $this->success([
             'user' => $user,
+        ]);
+    }
+
+    public function verify_email(VerifyEmailRequest $request)
+    {
+        $validatedData = $request->validated();
+
+        $user = User::where('email', $validatedData['email'])->first();
+
+        if (!$user) {
+            return $this->error(null, 'User not found', 404);
+        }
+
+        if (!Hash::check($validatedData['otp'], $user->verification_code)) {
+            return $this->error(null, 'Invalid verification code', 401);
+        }
+
+        $user->email_verified_at = Carbon::now();
+        $user->verification_code = null;
+        $user->verification_code_expires_at = null;
+        $user->save();
+
+        return $this->success([
+            'user' => $user,
+            'token' => $user->createToken('authToken-' . $user->username)->plainTextToken,
         ]);
     }
 }
