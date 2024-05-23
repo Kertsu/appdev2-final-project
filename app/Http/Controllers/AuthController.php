@@ -26,7 +26,7 @@ class AuthController extends Controller
 
         return $this->success([
             'user' => $user,
-            'token' => $user->createToken('authToken')->plainTextToken,
+            'token' => $user->createToken('authToken-'.$user->username)->plainTextToken,
         ]);
     }
 
@@ -34,19 +34,17 @@ class AuthController extends Controller
     {
         $validatedData = $request->validated();
 
-        $link_token = generate_link_token();
         $verification_code = generate_otp();
         $user = User::create([
             'email' => $validatedData['email'],
             'username' => $validatedData['username'],
             'password' => Hash::make($validatedData['password']),
             'verification_code' => $verification_code,
-            'link_token' =>  $link_token  . '-' . $validatedData['username']
         ]);
 
         return $this->success([
             'user' => $user,
-            'token' => $user->createToken('authToken')->plainTextToken,
+            'token' => $user->createToken('authToken-'. $user->username)->plainTextToken,
         ]);
     }
 

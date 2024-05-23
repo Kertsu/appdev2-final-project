@@ -21,12 +21,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
     Route::controller(UserController::class)->group(function () {
-        Route::get('/users/{username}', 'show');
-        Route::post('/users/{link_token}/validate', 'validate_link_token');
+        Route::post('/users/{username}/validate', 'validate_username');
     });
 
     Route::controller(MessageController::class)->group(function () {
-        Route::post('/users/{link_token}/send', 'initiate_conversation');
+        Route::post('/users/{username}/send', 'initiate_conversation');
         Route::post('/conversations/{conversation}/send', 'send_message')->missing(function () {
             return response()->json([
                 'error' => 'Conversation not found'

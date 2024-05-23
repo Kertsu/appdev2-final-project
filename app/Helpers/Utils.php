@@ -14,14 +14,3 @@ function generate_otp(){
 
     return $verification_code;
 }
-
-function generate_link_token(){
-    $link_token = Str::uuid();
-    $link_token_exist = User::where('link_token', $link_token)->first();
-
-    if ($link_token_exist){
-        return generate_link_token();
-    }
-
-    return $link_token;
-}

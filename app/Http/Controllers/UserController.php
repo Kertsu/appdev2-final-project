@@ -18,9 +18,9 @@ class UserController extends Controller
         return $this->success($user);
     }
 
-    public function validate_link_token(string $link_token)
+    public function validate_username(string $username)
     {
-        $user = User::where('link_token', $link_token)->first();
+        $user = User::where('username', $username)->first();
         if (!$user) {
             return $this->error(null, 'User not found', 404);
         }

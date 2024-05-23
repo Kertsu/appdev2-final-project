@@ -17,7 +17,7 @@ class MessageController extends Controller
     {
         $validatedData = $request->validated();
 
-        if (!$conversation && ($conversation->initiator_id !== Auth::user()->id || $conversation->recipient_id !== Auth::user()->id)) {
+        if (!$conversation || ($conversation->initiator_id !== Auth::user()->id && $conversation->recipient_id !== Auth::user()->id)) {
             return $this->error(null, 'Conversation not found', 404);
         }
 
@@ -36,11 +36,15 @@ class MessageController extends Controller
         );
     }
 
-    public function initiate_conversation(string $link_token, MessageRequest $request)
+    public function initiate_conversation(string $username, MessageRequest $request)
     {
         $validatedData = $request->validated();
 
-        $recipient = User::where('link_token', $link_token)->first();
+        $recipient = User::where('username', $username)->first();
+
+        if (!$recipient) {
+            return $this->error(null, 'Recipient not found', 404);
+        }
 
         $existingConversation = Conversation::where([
             ['initiator_id', '=', Auth::user()->id],
@@ -51,10 +55,6 @@ class MessageController extends Controller
             return $this->success([
                 'conversation_id' => $existingConversation->id
             ], 'Conversation already exists');
-        }
-
-        if (!$recipient) {
-            return $this->error(null, 'Recipient not found', 404);
         }
 
         if (Auth::user()->id == $recipient->id) {
@@ -85,7 +85,7 @@ class MessageController extends Controller
     private function generate_initiator_username()
     {
         do {
-            $randomUsername = 'Anon_' . Str::random(8);
+            $randomUsername = 'Whisp_' . Str::random(8);
         } while (Conversation::where('initiator_username', $randomUsername)->exists());
 
         return $randomUsername;

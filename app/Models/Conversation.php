@@ -12,5 +12,4 @@ class Conversation extends Model
     protected $fillable = [
         'initiator_id', 'recipient_id', 'content', 'initiator_username'
     ];
-
 }
