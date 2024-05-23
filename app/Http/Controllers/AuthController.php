@@ -27,6 +27,10 @@ class AuthController extends Controller
 
         $user = User::where('email', $validatedData['email'])->first();
 
+        if(!$user->email_verified_at){
+            return $this->error(null, 'Please verify your email', 401);
+        }
+
         return $this->success([
             'user' => $user,
             'token' => $user->createToken('authToken-' . $user->username)->plainTextToken,
