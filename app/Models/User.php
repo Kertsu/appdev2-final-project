@@ -22,7 +22,8 @@ class User extends Authenticatable
         'username',
         'password',
         'link_token',
-        'verification_code'
+        'verification_code',
+        'verification_code_expires_at'
     ];
 
     /**

@@ -17,8 +17,9 @@ function generate_otp(){
 
 function sendOTP(string $email, string $verification_code){
     $details = [
-        'title' => 'Mail from My Laravel App',
-        'body' => 'This is a test email.'
+        'title' => 'Welcome to Our Service',
+        'body' => 'This is a welcome email.',
+        'url' => 'https://example.com'
     ];
 
     Mail::to($email)->send(new SendMail($details));

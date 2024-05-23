@@ -11,13 +11,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::controller(AuthController::class)->group(function () {
-    Route::post('/login', 'login')->name('login');
-    Route::post('/register', 'register')->name('register');
+    Route::post('/login', 'login');
+    Route::post('/register', 'register');
+    Route::post('/verification_code/resend', 'resend_verification_code');
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::controller(AuthController::class)->group(function () {
-        Route::post('/logout', 'logout')->name('logout');
+        Route::post('/logout', 'logout');
     });
 
     Route::controller(UserController::class)->group(function () {

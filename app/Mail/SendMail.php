@@ -39,7 +39,7 @@ class SendMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.verification_code',
+            markdown: 'emails.verification_code',
             with: [
                 'details' => $this->details,
             ],
