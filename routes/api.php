@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -26,9 +27,18 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/users/{username}/validate', 'validate_username');
     });
 
+    Route::controller(ConversationController::class)->group(function (){
+        Route::get('/conversations', 'index');
+    });
+
     Route::controller(MessageController::class)->group(function () {
         Route::post('/users/{username}/send', 'initiate_conversation');
         Route::post('/conversations/{conversation}/send', 'send_message')->missing(function () {
+            return response()->json([
+                'error' => 'Conversation not found'
+            ], 404);
+        });
+        Route::get('/conversations/{conversation}/messages', 'get_messages')->missing(function () {
             return response()->json([
                 'error' => 'Conversation not found'
             ], 404);
