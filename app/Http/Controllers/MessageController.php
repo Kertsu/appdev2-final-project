@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageSent;
 use App\Http\Requests\MessageRequest;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -26,6 +27,8 @@ class MessageController extends Controller
             'conversation_id' => $conversation->id,
             'content' => $validatedData['content']
         ]);
+
+        event(new MessageSent($message));
 
         return $this->success(
             [
@@ -72,6 +75,9 @@ class MessageController extends Controller
             'conversation_id' => $conversation->id,
             'content' => $validatedData['content']
         ]);
+
+        event(new MessageSent($message));
+
 
         return $this->success(
             [
