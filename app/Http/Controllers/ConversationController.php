@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ReadMessage;
 use App\Models\Conversation;
 use App\Traits\HttpResponsesTrait;
 use Illuminate\Http\Request;
@@ -24,14 +25,38 @@ class ConversationController extends Controller
 
     public function get_messages(Conversation $conversation)
     {
-        if ($conversation->initiator_id !== Auth::user()->id && $conversation->recipient_id !== Auth::user()->id) {
+        $user = Auth::user();
+        if ($conversation->initiator_id !== $user->id && $conversation->recipient_id !== $user->id) {
             return $this->error(null, "Conversation not found", 404);
         }
+
+        $latestMessage = $conversation->messages()
+            ->where('sender_id', '!=', $user->id)
+            ->orderByDesc('created_at')
+            ->whereNull('read_at')
+            ->first();
+
+
+        if ($latestMessage) {
+            $unreadMessages = $conversation->messages()
+                ->where('sender_id', $latestMessage->sender_id)
+                ->where('created_at', '<=', $latestMessage->created_at)
+                ->whereNull('read_at')->get();
+
+
+            $unreadMessages->each(function ($message) {
+                $message->update(['read_at' => now()]);
+            });
+        }
+
         $messages = $conversation->messages()->with('sender')->get();
-        return $this->success(
-            [
-                'messages' => $messages,
-            ]
-        );
+
+        if ($latestMessage && isset($unreadMessages)) {
+            event(new ReadMessage($latestMessage));
+        }
+
+        return $this->success([
+            'messages' => $messages,
+        ]);
     }
 }

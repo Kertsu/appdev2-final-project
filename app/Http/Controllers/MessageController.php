@@ -105,12 +105,10 @@ class MessageController extends Controller
 
         if($message->sender_id !== Auth::user()->id){
             return $this->error(null, 'Invalid action', 401);
-        }
-
-        $validated_data = $request->validated();
+        } 
 
         $message->update([
-            'content' => $validated_data['content'],
+            'content' => $request->input('content')
         ]);
 
         return $this->success([
