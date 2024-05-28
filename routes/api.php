@@ -25,6 +25,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::controller(UserController::class)->group(function () {
         Route::post('/users/{username}/validate', 'validate_username');
+        Route::delete('/users/self/delete', 'destroy');
     });
 
     Route::controller(ConversationController::class)->group(function () {
