@@ -21,4 +21,17 @@ class ConversationController extends Controller
             'conversations' => $conversations,
         ]);
     }
+
+    public function get_messages(Conversation $conversation)
+    {
+        if ($conversation->initiator_id !== Auth::user()->id && $conversation->recipient_id !== Auth::user()->id) {
+            return $this->error(null, "Conversation not found", 404);
+        }
+        $messages = $conversation->messages()->with('sender')->get();
+        return $this->success(
+            [
+                'messages' => $messages,
+            ]
+        );
+    }
 }

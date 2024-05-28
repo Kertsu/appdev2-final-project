@@ -97,7 +97,4 @@ class MessageController extends Controller
         return $randomUsername;
     }
 
-    public function get_messages(Conversation $conversation){
-        
-    }
 }

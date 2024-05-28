@@ -27,18 +27,18 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/users/{username}/validate', 'validate_username');
     });
 
-    Route::controller(ConversationController::class)->group(function (){
+    Route::controller(ConversationController::class)->group(function () {
         Route::get('/conversations', 'index');
+        Route::get('/conversations/{conversation}/messages', 'get_messages')->missing(function () {
+            return response()->json([
+                'error' => 'Conversation not found'
+            ], 404);
+        });
     });
 
     Route::controller(MessageController::class)->group(function () {
         Route::post('/users/{username}/send', 'initiate_conversation');
         Route::post('/conversations/{conversation}/send', 'send_message')->missing(function () {
-            return response()->json([
-                'error' => 'Conversation not found'
-            ], 404);
-        });
-        Route::get('/conversations/{conversation}/messages', 'get_messages')->missing(function () {
             return response()->json([
                 'error' => 'Conversation not found'
             ], 404);
