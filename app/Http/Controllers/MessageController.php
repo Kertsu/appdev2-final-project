@@ -97,4 +97,25 @@ class MessageController extends Controller
         return $randomUsername;
     }
 
+    public function update_message(Conversation $conversation, Message $message, MessageRequest $request)
+    {
+        if ($message->conversation_id !== $conversation->id){
+            return $this->error(null, 'Message does not exist', 404);
+        }
+
+        if($message->sender_id !== Auth::user()->id){
+            return $this->error(null, 'Invalid action', 401);
+        }
+
+        $validated_data = $request->validated();
+
+        $message->update([
+            'content' => $validated_data['content'],
+        ]);
+
+        return $this->success([
+            'conversation' => $conversation,
+            'message' => $message,
+        ], "Message updated successfully");
+    }
 }
