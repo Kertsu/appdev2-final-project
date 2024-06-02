@@ -59,5 +59,21 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
                 ], 404);
             }
         });
+        Route::patch('/conversations/{conversation}/messages/{message}/read', 'mark_message_as_read')->missing(function ($request) {
+            $conversationId = $request->route('conversation');
+            $messageId = $request->route('message');
+
+            if (!Conversation::find($conversationId)) {
+                return response()->json([
+                    'error' => 'Conversation not found'
+                ], 404);
+            }
+
+            if (!Message::find($messageId)) {
+                return response()->json([
+                    'error' => 'Message not found'
+                ], 404);
+            }
+        });
     });
 });

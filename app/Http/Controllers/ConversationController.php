@@ -33,13 +33,6 @@ class ConversationController extends Controller
 
         $messages = $conversation->messages()->with('sender')->get();
 
-        return $this->success([
-            'messages' => $messages,
-        ]);
-    }
-
-    private function markMessageAsRead(Conversation $conversation, $user)
-    {
         $latestMessage = $conversation->messages()
             ->where('sender_id', '!=', $user->id)
             ->orderByDesc('created_at')
@@ -59,8 +52,13 @@ class ConversationController extends Controller
             });
         }
 
-        if ($unreadMessages->isNotEmpty()) {
+
+        if ($latestMessage && isset($unreadMessages)) {
             event(new ReadMessage($latestMessage));
         }
+
+        return $this->success([
+            'messages' => $messages,
+        ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\MessageSent;
+use App\Events\ReadMessage;
 use App\Http\Requests\MessageRequest;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -136,5 +137,14 @@ class MessageController extends Controller
             'conversation' => $conversation,
             'message' => $message,
         ], "Message updated successfully");
+    }
+
+    public function mark_message_as_read(Conversation $conversation, Message $message)
+    {
+        $message->update(['read_at' => now()]);
+
+        event(new ReadMessage($message));
+
+        return $this->success(['message' => $message], 'Message marked as read');
     }
 }
