@@ -38,6 +38,27 @@ class MessageController extends Controller
             'Message sent'
         );
     }
+    // public function send_message(MessageRequest $request, Conversation $conversation)
+    // {
+    //     $user = Auth::user();
+    //     $message = $conversation->messages()->create([
+    //         'sender_id' => $user->id,
+    //         'content' => $request->input('content'),
+    //     ]);
+
+    //     $recipient = $conversation->initiator_id == $user->id ? $conversation->recipient_id : $conversation->initiator_id;
+
+    //     $recipientUser = User::find($recipient);
+    //     if ($recipientUser && $recipientUser->isViewingConversation($conversation->id)) {
+    //         $message->update(['read_at' => now()]);
+    //         event(new MessageSent($message));
+    //     }
+
+    //     event(new MessageSent($message));
+
+    //     return $this->success(['message' => $message]);
+    // }
+
 
     public function initiate_conversation(string $username, MessageRequest $request)
     {
@@ -99,13 +120,13 @@ class MessageController extends Controller
 
     public function update_message(Conversation $conversation, Message $message, MessageRequest $request)
     {
-        if ($message->conversation_id !== $conversation->id){
+        if ($message->conversation_id !== $conversation->id) {
             return $this->error(null, 'Message does not exist', 404);
         }
 
-        if($message->sender_id !== Auth::user()->id){
+        if ($message->sender_id !== Auth::user()->id) {
             return $this->error(null, 'Invalid action', 401);
-        } 
+        }
 
         $message->update([
             'content' => $request->input('content')

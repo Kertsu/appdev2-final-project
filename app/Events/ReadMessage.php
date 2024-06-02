@@ -31,7 +31,7 @@ class ReadMessage implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return ['read-conversation.'.$this->message->conversation_id];
+        return ['conversation.'.$this->message->conversation_id];
     }
 
     public function broadcastAs(){

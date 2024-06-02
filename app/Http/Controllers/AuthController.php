@@ -27,13 +27,18 @@ class AuthController extends Controller
 
         $user = User::where('email', $validatedData['email'])->first();
 
-        // if(!$user->email_verified_at){
-        //     return $this->error(null, 'Please verify your email', 401);
-        // }
+        if (!$user->email_verified_at) {
+            return $this->success([
+                'user' => $user,
+                "otpRequired" => true,
+                'token' => $user->createToken('authToken-' . $user->username)->plainTextToken,
+            ]);
+        }
 
         return $this->success([
             'user' => $user,
             'token' => $user->createToken('authToken-' . $user->username)->plainTextToken,
+            "otpRequired" => false
         ]);
     }
 
@@ -42,9 +47,12 @@ class AuthController extends Controller
         $validatedData = $request->validated();
 
         $verification_code = generate_otp();
+
+        $username = explode('@', $validatedData['email'])[0];
+
         $user = User::create([
             'email' => $validatedData['email'],
-            'username' => $validatedData['username'],
+            'username' => $username,
             'password' => Hash::make($validatedData['password']),
             'verification_code' => Hash::make($verification_code),
             'verification_code_expires_at' => Carbon::now()->addMinutes(10)
@@ -53,7 +61,7 @@ class AuthController extends Controller
         sendOTP($user->email, $verification_code);
 
         return $this->success([
-            'user' => $user,
+            'message' => "We sent a verification code to your email address",
         ]);
     }
 
@@ -83,7 +91,7 @@ class AuthController extends Controller
         $user->verification_code_expires_at = Carbon::now()->addMinutes(10);
         $user->save();
 
-        // sendOTP($user->email, $verification_code);
+        sendOTP($user->email, $verification_code);
 
         return $this->success([
             'user' => $user,

@@ -9,10 +9,6 @@ use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::controller(AuthController::class)->group(function () {
     Route::post('/login', 'login');
     Route::post('/register', 'register');
@@ -28,6 +24,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::controller(UserController::class)->group(function () {
         Route::post('/users/{username}/validate', 'validate_username');
         Route::delete('/users/self/delete', 'destroy');
+        Route::get('/users/self', 'get_self');
     });
 
     Route::controller(ConversationController::class)->group(function () {

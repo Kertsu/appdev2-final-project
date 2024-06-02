@@ -16,10 +16,11 @@ class ConversationController extends Controller
         $user = Auth::user();
         $conversations = Conversation::where('initiator_id', $user->id)
             ->orWhere('recipient_id', $user->id)
-            ->get();
+            ->with(['latestMessage', 'recipient'])->get();
 
         return $this->success([
             'conversations' => $conversations,
+            'totalRecords' => $conversations->count(),
         ]);
     }
 
@@ -30,6 +31,15 @@ class ConversationController extends Controller
             return $this->error(null, "Conversation not found", 404);
         }
 
+        $messages = $conversation->messages()->with('sender')->get();
+
+        return $this->success([
+            'messages' => $messages,
+        ]);
+    }
+
+    private function markMessageAsRead(Conversation $conversation, $user)
+    {
         $latestMessage = $conversation->messages()
             ->where('sender_id', '!=', $user->id)
             ->orderByDesc('created_at')
@@ -49,14 +59,8 @@ class ConversationController extends Controller
             });
         }
 
-        $messages = $conversation->messages()->with('sender')->get();
-
-        if ($latestMessage && isset($unreadMessages)) {
+        if ($unreadMessages->isNotEmpty()) {
             event(new ReadMessage($latestMessage));
         }
-
-        return $this->success([
-            'messages' => $messages,
-        ]);
     }
 }
