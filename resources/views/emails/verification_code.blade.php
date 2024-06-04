@@ -3,8 +3,10 @@
 
 {{ $details['body'] }}
 
+{{ $details['verification_code']}}
+
 @component('mail::button', ['url' => $details['url']])
-Click Here
+Sign in
 @endcomponent
 
 Thanks,<br>
