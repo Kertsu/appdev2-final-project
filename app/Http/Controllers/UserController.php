@@ -23,7 +23,7 @@ class UserController extends Controller
     {
         $user = User::where('username', $username)->first();
         if (!$user) {
-            return $this->error(null, 'User not found', 404);
+            return $this->error(null, "Sorry, we couldn't find the user you were looking for.", 404);
         }
         return $this->success(["user" => $user]);
     }

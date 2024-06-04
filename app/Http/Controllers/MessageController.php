@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\MessageSent;
+use App\Events\NewMessage;
 use App\Events\ReadMessage;
 use App\Http\Requests\MessageRequest;
 use App\Models\Conversation;
@@ -39,27 +40,6 @@ class MessageController extends Controller
             'Message sent'
         );
     }
-    // public function send_message(MessageRequest $request, Conversation $conversation)
-    // {
-    //     $user = Auth::user();
-    //     $message = $conversation->messages()->create([
-    //         'sender_id' => $user->id,
-    //         'content' => $request->input('content'),
-    //     ]);
-
-    //     $recipient = $conversation->initiator_id == $user->id ? $conversation->recipient_id : $conversation->initiator_id;
-
-    //     $recipientUser = User::find($recipient);
-    //     if ($recipientUser && $recipientUser->isViewingConversation($conversation->id)) {
-    //         $message->update(['read_at' => now()]);
-    //         event(new MessageSent($message));
-    //     }
-
-    //     event(new MessageSent($message));
-
-    //     return $this->success(['message' => $message]);
-    // }
-
 
     public function initiate_conversation(string $username, MessageRequest $request)
     {
@@ -77,16 +57,14 @@ class MessageController extends Controller
         ])->first();
 
         if ($existingConversation) {
-            return $this->success([
-                'conversation_id' => $existingConversation->id
-            ], 'Conversation already exists');
+            return $this->error(null, 'Conversation already exist', 400);
         }
 
         if (Auth::user()->id == $recipient->id) {
-            return $this->error(null, 'You cannot initiate a conversation with yourself', 400);
+            return $this->error(null, 'Seriously? You cannot initiate a conversation with yourself here', 400);
         }
 
-        $conversation = Conversation::create([
+        $new_conversation = Conversation::create([
             'initiator_id' => Auth::user()->id,
             'recipient_id' => $recipient->id,
             'initiator_username' => $this->generate_initiator_username()
@@ -94,11 +72,13 @@ class MessageController extends Controller
 
         $message = Message::create([
             'sender_id' => Auth::user()->id,
-            'conversation_id' => $conversation->id,
+            'conversation_id' => $new_conversation->id,
             'content' => $validatedData['content']
         ]);
 
-        event(new MessageSent($message));
+        $conversation = Conversation::where('id', $new_conversation->id)->with(['latestMessage', 'recipient'])->first();
+
+        event(new NewMessage($conversation));
 
 
         return $this->success(
