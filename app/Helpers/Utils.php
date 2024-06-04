@@ -24,7 +24,7 @@ function sendOTP(string $email, string $verification_code)
         'body' => "Thank you for signing up with Whisper Link! We are thrilled to welcome you onboard. 
         This verification code will expire in the next 10 minutes. Please do not share it with anyone: ",
         'verification_code' => $verification_code,
-        'url' => 'https://whisper-link.vercel.app'
+        'url' => 'https://whisper-link.vercel.app/login'
     ];
 
     Mail::to($email)->send(new SendMail($details));
