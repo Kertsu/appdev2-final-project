@@ -24,6 +24,12 @@ class MessageController extends Controller
             return $this->error(null, 'Conversation not found', 404);
         }
 
+        $initiatorDeleted = !User::find($conversation->initiator_id);
+        $recipientDeleted = !User::find($conversation->recipient_id);
+        if ($initiatorDeleted || $recipientDeleted) {
+            return $this->error(null, 'The other person is unavailable on Whisper Link', 403);
+        }
+
         $message = Message::create([
             'sender_id' => Auth::user()->id,
             'conversation_id' => $conversation->id,
