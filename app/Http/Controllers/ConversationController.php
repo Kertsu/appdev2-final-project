@@ -16,7 +16,7 @@ class ConversationController extends Controller
         $user = Auth::user();
         $conversations = Conversation::where('initiator_id', $user->id)
             ->orWhere('recipient_id', $user->id)
-            ->with(['latestMessage', 'recipient'])->get();
+            ->with(['latestMessage', 'recipient'])->orderBy('updated_at', 'desc')->get();
 
         return $this->success([
             'conversations' => $conversations,
@@ -34,7 +34,10 @@ class ConversationController extends Controller
         $messages = $conversation->messages()->with('sender')->get();
 
         $latestMessage = $conversation->messages()
-            ->where('sender_id', '!=', $user->id)
+            ->where(function ($query) use ($user) {
+                $query->whereNull('sender_id')
+                    ->orWhere('sender_id', '!=', $user->id);
+            })
             ->orderByDesc('created_at')
             ->whereNull('read_at')
             ->first();
@@ -46,12 +49,10 @@ class ConversationController extends Controller
                 ->where('created_at', '<=', $latestMessage->created_at)
                 ->whereNull('read_at')->get();
 
-
             $unreadMessages->each(function ($message) {
                 $message->update(['read_at' => now()]);
             });
         }
-
 
         if ($latestMessage && isset($unreadMessages)) {
             event(new ReadMessage($latestMessage));
