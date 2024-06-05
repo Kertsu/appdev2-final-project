@@ -21,10 +21,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/logout', 'logout');
     });
 
-    Route::controller(UserController::class)->group(function () {
-        Route::post('/users/{username}/validate', 'validate_username');
-        Route::delete('/users/self/delete', 'destroy');
-        Route::get('/users/self', 'get_self');
+    Route::prefix('users')->controller(Usercontroller::class)->group(function () {
+        Route::post('/{username}/validate', 'validate_username');
+        Route::delete('/self/delete', 'destroy');
+        Route::get('/self', 'get_self');
     });
 
     Route::controller(ConversationController::class)->group(function () {

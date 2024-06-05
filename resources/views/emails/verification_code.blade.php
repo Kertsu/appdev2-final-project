@@ -3,7 +3,7 @@
 
 {{ $details['body'] }}
 
-{{ $details['verification_code']}}
+# {{ $details['verification_code']}}
 
 @component('mail::button', ['url' => $details['url']])
 Sign in
