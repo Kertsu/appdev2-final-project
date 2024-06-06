@@ -25,7 +25,7 @@ class ConversationController extends Controller
                     ->latest()
                     ->limit(1)
             );
-            
+
 
         if ($request->has('first') && $request->has('page') && $request->has('rows')) {
             $page = $request->input('page');
@@ -40,20 +40,33 @@ class ConversationController extends Controller
 
         return $this->success([
             'conversations' => $conversations,
-            'totalRecords' => $conversations->count(), 
+            'totalRecords' => $conversations->count(),
         ]);
     }
 
 
 
-    public function get_messages(Conversation $conversation)
+    public function get_messages(Request $request, Conversation $conversation)
     {
         $user = Auth::user();
         if ($conversation->initiator_id !== $user->id && $conversation->recipient_id !== $user->id) {
             return $this->error(null, "Conversation not found", 404);
         }
 
-        $messages = $conversation->messages()->with('sender')->get();
+        $rows = $request->input('rows');
+        $before = $request->input('before');
+
+        $messageQuery = $conversation->messages()
+            ->with('sender')
+            ->orderBy('created_at', 'desc');
+
+        if ($before) {
+            $messageQuery = $messageQuery->where('created_at', '<', $before);
+        }
+
+        $messages = $messageQuery->limit($rows)->get();
+
+        $totalRecords = $conversation->messages()->count();
 
         $latestMessage = $conversation->messages()
             ->where(function ($query) use ($user) {
@@ -63,7 +76,6 @@ class ConversationController extends Controller
             ->orderByDesc('created_at')
             ->whereNull('read_at')
             ->first();
-
 
         if ($latestMessage) {
             $unreadMessages = $conversation->messages()
@@ -82,6 +94,7 @@ class ConversationController extends Controller
 
         return $this->success([
             'messages' => $messages,
+            'totalRecords' => $totalRecords,
         ]);
     }
 }
