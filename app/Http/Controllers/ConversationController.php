@@ -28,19 +28,17 @@ class ConversationController extends Controller
 
 
         if ($request->has('first') && $request->has('page') && $request->has('rows')) {
-            $page = $request->input('page');
+            $first = $request->input('first');
             $rows = $request->input('rows');
 
-            $offset = ($page - 1) * $rows;
-
-            $query->skip($offset)->take($rows);
+            $query->skip($first)->take($rows);
         }
 
         $conversations = $query->get();
 
         return $this->success([
             'conversations' => $conversations,
-            'totalRecords' => $conversations->count(),
+            'totalRecords' => Conversation::all()->count(),
         ]);
     }
 
