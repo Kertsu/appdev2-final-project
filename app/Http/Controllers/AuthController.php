@@ -95,7 +95,7 @@ class AuthController extends Controller
 
         return $this->success([
             'user' => $user,
-        ]);
+        ], 'Verification has been sent to ' . $user->email);
     }
 
     public function verify_email(VerifyEmailRequest $request)
