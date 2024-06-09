@@ -51,7 +51,7 @@ class ConversationController extends Controller
             return $this->error(null, "Conversation not found", 404);
         }
 
-        $rows = $request->input('rows');
+        $rows = $request->input('rows', 10);
         $before = $request->input('before');
 
         $messageQuery = $conversation->messages()
@@ -64,7 +64,7 @@ class ConversationController extends Controller
 
         $messages = $messageQuery->limit($rows)->get();
 
-        $totalRecords = $conversation->messages()->count();
+        $olderMessages = $conversation->messages()->where('created_at', '<', $messages[count($messages)-1]->created_at)->count();
 
         $latestMessage = $conversation->messages()
             ->where(function ($query) use ($user) {
@@ -92,7 +92,7 @@ class ConversationController extends Controller
 
         return $this->success([
             'messages' => $messages,
-            'totalRecords' => $totalRecords,
+            'olderMessages' => $olderMessages,
         ]);
     }
 }
