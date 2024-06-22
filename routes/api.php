@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConversationController;
-use App\Http\Controllers\MessageController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,12 +27,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::prefix('conversations')->controller(ConversationController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('/{conversation}/messages', 'get_messages')->missing(fn () => response()->json(['error' => 'Conversation not found'], 404));
-    });
-
-    Route::controller(MessageController::class)->group(function () {
-        Route::post('/conversations/{conversation}/send', 'send_message')->missing(fn () => response()->json(['error' => 'Conversation not found'], 404));
-        Route::patch('/conversations/{conversation}/messages/{message}', 'update_message')->missing(fn ($request) => handleMissing($request));
-        Route::patch('/conversations/{conversation}/messages/{message}/read', 'mark_message_as_read')->missing(fn ($request) => handleMissing($request));
+        Route::post('/{conversation}/send', 'send_message')->missing(fn () => response()->json(['error' => 'Conversation not found'], 404));
+        Route::patch('/{conversation}/messages/{message}', 'update_message')->missing(fn ($request) => handleMissing($request));
+        Route::patch('/{conversation}/messages/{message}/read', 'mark_message_as_read')->missing(fn ($request) => handleMissing($request));
     });
 });
 
